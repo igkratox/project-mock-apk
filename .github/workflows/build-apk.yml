@@ -1,4 +1,4 @@
-name: Build Project Mock APK
+name: Build ShiKen APK
 
 on:
   push:
@@ -29,17 +29,17 @@ jobs:
         run: gradle assembleDebug --no-daemon
 
       - name: Prepare Release APK
-        run: cp app/build/outputs/apk/debug/app-debug.apk ProjectMock-ExamApp.apk
+        run: cp app/build/outputs/apk/debug/app-debug.apk ShiKen-ExamApp.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ProjectMock-ExamApp
-          path: ProjectMock-ExamApp.apk
+          name: ShiKen-ExamApp
+          path: ShiKen-ExamApp.apk
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.1.0
-          name: Project Mock Exam App v1.1.0
-          files: ProjectMock-ExamApp.apk
+          tag_name: v1.2.0
+          name: ShiKen Exam App v1.2.0
+          files: ShiKen-ExamApp.apk

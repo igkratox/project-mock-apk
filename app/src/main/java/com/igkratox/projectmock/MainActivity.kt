@@ -29,6 +29,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -48,7 +49,7 @@ class MainActivity : AppCompatActivity() {
     private var webLoaded = false
     private var pausedAtMs = 0L
     private var kioskActive = false
-    private val currentVersion = "v1.1.0"
+    private val currentVersion = "v1.2.0"
     private val baseUrl = "https://igkratox.github.io/mock-options-without-socials/"
 
     private val fileChooserLauncher =
@@ -126,6 +127,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         setupWebView()
+        setupBackNavigation()
         checkPermissionAndBoot()
         checkApkUpdate()
     }
@@ -268,7 +270,7 @@ class MainActivity : AppCompatActivity() {
                         runOnUiThread {
                             AlertDialog.Builder(this)
                                 .setTitle("New App Update ($latestTag)")
-                                .setMessage("Project Mock Exam App er notun version ($latestTag) ashche! Update korle notun features paba.")
+                                .setMessage("ShiKen App er notun version ($latestTag) ashche! Update korle notun features paba.")
                                 .setPositiveButton("Download Update") { _, _ ->
                                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(htmlUrl)))
                                 }
@@ -345,13 +347,71 @@ class MainActivity : AppCompatActivity() {
         } catch (_: Exception) { }
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if (webView.visibility == View.VISIBLE && webView.canGoBack()) {
-            webView.goBack()
-        } else if (!kioskActive) {
-            @Suppress("DEPRECATION")
-            super.onBackPressed()
+    private fun setupBackNavigation() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                handleBackPress()
+            }
+        })
+    }
+
+    private fun handleBackPress() {
+        if (webView.visibility != View.VISIBLE) {
+            showAppExitDialog()
+            return
         }
+
+        val stateJs = """
+            (function() {
+                var examEl = document.getElementById('exam');
+                if (examEl && !examEl.classList.contains('hide')) return 'exam';
+                var setupEl = document.getElementById('setup');
+                var gateEl = document.getElementById('gateView');
+                var onSetup = setupEl && !setupEl.classList.contains('hide');
+                var onGate = gateEl && !gateEl.classList.contains('hide');
+                if (onSetup || onGate) return 'home';
+                return 'subpage';
+            })();
+        """.trimIndent()
+
+        webView.evaluateJavascript(stateJs) { raw ->
+            val state = raw?.trim('"') ?: "home"
+            when {
+                state == "exam" || kioskActive -> showExamExitWarning()
+                webView.canGoBack() -> webView.goBack()
+                state == "subpage" -> {
+                    webView.evaluateJavascript("if(typeof goHome==='function')goHome();", null)
+                }
+                else -> showAppExitDialog()
+            }
+        }
+    }
+
+    private fun showExamExitWarning() {
+        AlertDialog.Builder(this)
+            .setTitle("Exam Cholche! ⚠️")
+            .setMessage("Tumi ekhon exam page e acho. Home page e fire jete chao? Exam cholakalin ber hole progress lose hote pare.")
+            .setPositiveButton("Home e Jao") { _, _ ->
+                if (kioskActive) {
+                    try {
+                        stopLockTask()
+                    } catch (_: Exception) { }
+                    kioskActive = false
+                }
+                webView.evaluateJavascript("if(typeof goHome==='function')goHome();", null)
+            }
+            .setNegativeButton("Na, Exam e Thako", null)
+            .show()
+    }
+
+    private fun showAppExitDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Exit ShiKen?")
+            .setMessage("Tumi ki ShiKen app theke exit dite chao?")
+            .setPositiveButton("Exit") { _, _ ->
+                finish()
+            }
+            .setNegativeButton("Na", null)
+            .show()
     }
 }

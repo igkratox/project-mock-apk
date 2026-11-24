@@ -56,7 +56,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="Project Mock Exam"
+                    android:text="ShiKen"
                     android:textColor="#F8FAFC"
                     android:textSize="22sp"
                     android:textStyle="bold" />
@@ -81,7 +81,7 @@
                     android:layout_marginTop="16dp"
                     android:gravity="center"
                     android:lineSpacingMultiplier="1.35"
-                    android:text="Exam security er jonno ei app e Usage Access permission deya mandatory.\n\nPermission na dile exam app open hobe na. Niche button e click kore 'Project Mock' select kore Allow kore dao."
+                    android:text="Exam security er jonno ei app e Usage Access permission deya mandatory.\n\nPermission na dile exam app open hobe na. Niche button e click kore 'ShiKen' select kore Allow kore dao."
                     android:textColor="#CBD5E1"
                     android:textSize="14sp" />
 
