@@ -24,6 +24,7 @@ import android.os.Vibrator
 import android.provider.Settings
 import android.view.View
 import android.view.WindowManager
+import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
@@ -69,7 +70,7 @@ class MainActivity : AppCompatActivity() {
     private var kioskActive = false
     private var audioFocusReq: AudioFocusRequest? = null
     private var audioVolumeCheckedForSession = false
-    private val currentVersion = "v1.3.0"
+    private val currentVersion = "v1.3.1"
     private val baseUrl = InviteCheckWorker.BASE_URL
 
     private val fileChooserLauncher =
@@ -196,6 +197,13 @@ class MainActivity : AppCompatActivity() {
         ws.builtInZoomControls = true
         ws.displayZoomControls = false
         ws.userAgentString = ws.userAgentString + " ProjectMockApp/1.3"
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            webView.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_YES
+        }
+        val cm = CookieManager.getInstance()
+        cm.setAcceptCookie(true)
+        cm.setAcceptThirdPartyCookies(webView, true)
 
         webView.addJavascriptInterface(ExamBridge(), "ExamAppBridge")
         webView.webViewClient = object : WebViewClient() {
@@ -553,6 +561,9 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         pausedAtMs = System.currentTimeMillis()
+        try {
+            CookieManager.getInstance().flush()
+        } catch (_: Exception) { }
         if (webLoaded) syncStudentUsernameForWorker()
     }
 
