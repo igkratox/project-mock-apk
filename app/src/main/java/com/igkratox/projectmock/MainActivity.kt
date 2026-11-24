@@ -192,6 +192,9 @@ class MainActivity : AppCompatActivity() {
         ws.allowFileAccess = true
         ws.mediaPlaybackRequiresUserGesture = false
         ws.mixedContentMode = WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
+        ws.setSupportZoom(true)
+        ws.builtInZoomControls = true
+        ws.displayZoomControls = false
         ws.userAgentString = ws.userAgentString + " ProjectMockApp/1.3"
 
         webView.addJavascriptInterface(ExamBridge(), "ExamAppBridge")
