@@ -40,6 +40,6 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0
-          name: Project Mock Exam App v1.0.0
+          tag_name: v1.1.0
+          name: Project Mock Exam App v1.1.0
           files: ProjectMock-ExamApp.apk
